@@ -1,0 +1,14 @@
+langchain
+langchain-core
+langchain-community
+langchain-experimental
+pandas
+streamlit
+ydata-profiling
+streamlit-pandas-profiling
+matplotlib
+seaborn
+plotly
+numba
+numpy
+python-dotenv
