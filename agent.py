@@ -38,7 +38,7 @@ def get_fig_download_link(fig, filename="plot.png"):
     return href
 
 def main():
-    st.title("📈 Stock Market Data Explorer with Agent")
+    st.title("🧑‍💻 Data Analyst Agent: Explore Any Dataset")
 
     # Load data file (change path or implement file uploader later)
     data_path = "/Users/akshayaa.s/agentic_ai/data_analyst/stock_data_july_2025.csv"
@@ -47,51 +47,51 @@ def main():
     # Create LangChain Pandas Agent once
     agent = create_pandas_dataframe_agent(llm, df, verbose=False, allow_dangerous_code=True, handle_parsing_errors=True)
 
-    tabs = st.tabs(["Raw Dataset", "Info & Describe", "Visualizations", "Ask Questions"])
+    tabs = st.tabs(["Dataset Preview", "Dataset Overview", "Data Visualizations", "Ask Your Data"])
 
-    # --- Raw Dataset ---
+    # --- Dataset Preview ---
     with tabs[0]:
-        st.header("Raw Dataset")
+        st.header("📋 View Dataset")
         st.dataframe(df)
         st.markdown(get_table_download_link(df), unsafe_allow_html=True)
 
-    # --- Dataset Info ---
+    # --- Dataset Overview ---
     with tabs[1]:
-        st.header("Dataset Information")
+        st.header("📊 Dataset Summary & Info")
 
         # Data Types Table
         dtypes_df = pd.DataFrame(df.dtypes, columns=["Data Type"]).reset_index().rename(columns={"index": "Column"})
-        st.subheader("Data Types")
+        st.subheader("Column Data Types")
         st.dataframe(dtypes_df)
 
         # Missing Values Table
         missing_df = pd.DataFrame(df.isna().sum(), columns=["Missing Values"]).reset_index().rename(columns={"index": "Column"})
-        st.subheader("Missing Values Count")
+        st.subheader("Missing Values Per Column")
         st.dataframe(missing_df)
 
         # Unique Values for categorical columns
         cat_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
         if cat_cols:
-            st.subheader("Unique Values in Categorical Columns")
+            st.subheader("Categorical Columns: Unique Value Counts")
             unique_vals = {col: df[col].nunique() for col in cat_cols}
             unique_df = pd.DataFrame(list(unique_vals.items()), columns=["Column", "Unique Values"])
             st.dataframe(unique_df)
 
         # Show describe
-        st.subheader("Descriptive Statistics (Numeric Columns)")
+        st.subheader("Statistical Summary (Numeric Columns)")
         st.dataframe(df.describe())
 
-    # --- Visualizations ---
+    # --- Data Visualizations ---
     with tabs[2]:
-        st.header("Visualizations")
+        st.header("📈 Interactive Visualizations")
 
         # Select columns for visualization
         numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
-        selected_cols = st.multiselect("Select numeric columns to plot", numeric_cols, default=numeric_cols[:2])
+        selected_cols = st.multiselect("Select numeric columns to visualize", numeric_cols, default=numeric_cols[:2])
 
         if selected_cols:
             # Select plot type
-            plot_type = st.selectbox("Select plot type", ["Line Plot", "Histogram", "Scatter Plot"])
+            plot_type = st.selectbox("Choose plot type", ["Line Plot", "Histogram", "Scatter Plot"])
 
             if plot_type == "Line Plot":
                 fig, ax = plt.subplots()
@@ -117,23 +117,23 @@ def main():
                     st.pyplot(fig)
                     st.markdown(get_fig_download_link(fig, "scatter_plot.png"), unsafe_allow_html=True)
                 else:
-                    st.warning("Select at least two columns for scatter plot.")
+                    st.warning("Please select at least two numeric columns for scatter plot.")
 
         else:
-            st.info("Select one or more numeric columns to start visualization.")
+            st.info("Select one or more numeric columns to enable visualization options.")
 
-    # --- Ask Questions ---
+    # --- Ask Your Data ---
     with tabs[3]:
-        st.header("Ask Questions about the Dataset")
-        user_question = st.text_input("Enter your question about the dataset:")
+        st.header("💬 Ask Questions About Your Data")
+        user_question = st.text_input("Enter your question:")
 
         if user_question:
-            with st.spinner("Agent is thinking..."):
+            with st.spinner("Analyzing your question..."):
                 try:
                     answer = agent.run(user_question)
                     st.markdown(f"**Answer:** {answer}")
                 except Exception as e:
-                    st.error(f"Error: {e}")
+                    st.error(f"Oops! An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
